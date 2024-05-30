@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentType {
+  CPF
+  CNPJ
+}
+
+enum WalletType {
+  Costumer
+  Retailer
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+}
+
+model User {
+  id             Int          @id @default(autoincrement())
+  email          String       @unique
+  password       String
+  documentType   DocumentType @default(CPF) @map("document_type")
+  documentNumber String       @unique @map("document_number")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String
+  wallet         Wallet?      
+
+
+  @@unique([documentNumber, documentType])
+  @@map("users")
+}
+
+model Wallet {
+  id               Int           @id 
+  balance          Float         @default(0)
+  ownerId          Int           @unique @map("owner_id")
+  type             WalletType
+  user             User          @relation(fields: [ownerId], references: [id])
+  transactionsFrom Transaction[] @relation("SourceWallet")
+  transactionsTo   Transaction[] @relation("DestinationWallet")
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id                  Int     @id @default(autoincrement())
+  amount              Float
+  sourceWalletId      Int     @map("source_wallet_id")
+  destinationWalletId Int     @map("destination_wallet_id")
+  sourceWallet        Wallet  @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  destinationWallet   Wallet  @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
+
+  @@map("transactions")
+}
