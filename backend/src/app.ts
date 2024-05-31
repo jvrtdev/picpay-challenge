@@ -4,6 +4,7 @@ import MakeTransaction from './app/controllers/wallet/MakeTransaction';
 import UserController from './app/controllers/UserController';
 import TransactionController from './app/controllers/TransactionController';
 import WalletController from './app/controllers/WalletController';
+import Auth from './app/middleware/Auth';
 
 const app = express();
 
@@ -14,13 +15,16 @@ app.get('/', (req: Request, res: Response) => {
   res.send("Api rodando")
 })
 //user
-app.post('/api/create', UserController.CreateAccount)
+app.post('/api/create', UserController.CreateAccount);
+app.post('/api/login', UserController.LoginAccount);
+
 app.get('/api/user/:id', UserController.GetUserById)
 app.get('/api/users', UserController.GetAllUsers)
 app.put('/api/user/:id', UserController.UpdateUser)
 app.delete('/api/user/:id', UserController.DeleteUser)
 
-app.post('/api/login', UserController.LoginAccount)
+//auth
+
 
 //wallet
 app.post('/api/wallet', WalletController.addAmountOnWallet);
