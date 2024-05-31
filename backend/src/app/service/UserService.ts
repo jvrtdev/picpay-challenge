@@ -24,19 +24,17 @@ class UserService {
     })
   }
 
-  async loginUser(login: string, password: string) {
+  async loginUser(login: string) {
     if(login.includes('@')){
       return await prisma.user.findUnique({
             where: {
               email: login,
-              password: password 
             }
           })
     }
     return await prisma.user.findUnique({
       where: {
         documentNumber: login,
-        password: password
       }
     })
     
